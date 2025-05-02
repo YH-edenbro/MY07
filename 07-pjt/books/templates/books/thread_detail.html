@@ -33,6 +33,48 @@
   
   <div class="d-flex flex-row justify-content-start align-items-center gap-4">
     <!-- 여기에 좋아요 관련 기능을 구현하시오 -->
+
+    <!-- 좋아요 버튼 및 수 표시 -->
+<!-- 좋아요 버튼 및 수 표시 -->
+    <div id="like-section" data-liked="{% if user in thread.likes.all %}true{% else %}false{% endif %}">
+      <button id="like-btn" class="btn {% if user in thread.likes.all %}btn-warning{% else %}btn-outline-warning{% endif %}">
+        👍 좋아요
+      </button>
+      <span id="like-count">{{ thread.likes.count }}</span>명이 좋아합니다
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const likeBtn = document.getElementById("like-btn");
+        const likeCount = document.getElementById("like-count");
+
+        likeBtn.addEventListener("click", function (event) {
+          event.preventDefault();  // form 기본 동작 막기
+
+          fetch("{% url 'books:likes' book.pk thread.pk %}", {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": "{{ csrf_token }}",
+              "Accept": "application/json",
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
+            likeCount.textContent = data.like_count;
+            if (data.liked) {
+              likeBtn.classList.remove("btn-outline-warning");
+              likeBtn.classList.add("btn-warning");
+            } else {
+              likeBtn.classList.remove("btn-warning");
+              likeBtn.classList.add("btn-outline-warning");
+            }
+          })
+          .catch(error => console.error("Error:", error));
+        });
+      });
+    </script>
+
+
   <hr>
   
   <!-- 쓰레드 댓글 출력 섹션 -->

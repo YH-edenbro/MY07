@@ -3,6 +3,7 @@ import openai
 from pathlib import Path
 from django.conf import settings
 import uuid
+import dotenv
 
 def generate_image_with_openai(thread_title, thread_content, book_title, book_author):
 

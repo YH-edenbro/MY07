@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import Category
 from .models import Book, Thread, Comment
 from .forms import ThreadForm, CommentForm
+from django.shortcuts import redirect, get_object_or_404
+
 from .utils import (
     generate_image_with_openai,
 )
@@ -17,7 +19,7 @@ from .utils import (
 
 # Index 페이지
 def index(request):
-    pass
+    return render(request,'books/index.html')
 
 # 장르별 필터링
 def filter_category(request):
@@ -107,8 +109,19 @@ def thread_delete(request, book_pk, thread_pk):
 
 
 # 쓰레드 좋아요 비동기 처리
+@require_POST
 def likes(request, book_pk, thread_pk):
-    pass
+    thread = get_object_or_404(Thread, pk=thread_pk)
+    liked = False
+    if request.user in thread.likes.all():
+        thread.likes.remove(request.user)
+    else:
+        thread.likes.add(request.user)
+        liked = True
+    return JsonResponse({
+        "liked": liked,
+        "like_count": thread.likes.count()
+    })
 
 # 쓰레드 댓글 비동기 처리
 def create_comment(request, book_pk, thread_pk):
