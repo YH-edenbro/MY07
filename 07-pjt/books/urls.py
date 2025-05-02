@@ -27,7 +27,7 @@ urlpatterns = [
         views.likes,
         name='likes',
     ),
-     path(
+    path(
         '<int:book_pk>/comment/<int:thread_pk>/create/',
         views.create_comment,
         name='create_comment',
