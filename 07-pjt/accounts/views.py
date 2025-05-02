@@ -12,6 +12,7 @@ from django.views.decorators.http import (
     require_http_methods,
     require_POST,
 )
+from django.http import JsonResponse
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 
@@ -78,6 +79,13 @@ def follow(request, user_pk):
     if person != request.user:
         if request.user in person.followers.all():
             person.followers.remove(request.user)
+            is_follow = False
         else:
-            person.followers.remove(request.user)
-    return redirect('account:profile', person.username)
+            person.followers.add(request.user)
+            is_follow = True
+    context = {
+        'is_follow': is_follow,
+        'followers_count': person.followers.count(),
+        'followings_count': person.followings.count(),
+    }
+    return JsonResponse(context)
