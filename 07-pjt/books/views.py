@@ -29,11 +29,25 @@ def index(request):
 
 # 장르별 필터링
 def filter_category(request):
-    # book = Book.objects.filter()
-    context={
-        # 'books':book
+    category = request.GET.get('category', '')
+    
+    if category:
+        books = Book.objects.filter(category__name=category)
+    else:
+        books = Book.objects.all()
+
+    data = {
+        'books': [
+            {
+                'id': book.id,
+                'title': book.title,
+                'description': book.description[:180],
+                'cover': book.cover if book.cover else '',
+            }
+            for book in books
+        ]
     }
-    return render(request, 'books/index.html', context)
+    return JsonResponse(data)
 
 @require_safe
 def detail(request, book_pk):
