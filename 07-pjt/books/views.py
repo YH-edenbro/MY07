@@ -124,8 +124,33 @@ def likes(request, book_pk, thread_pk):
     })
 
 # 쓰레드 댓글 비동기 처리
+@login_required
+@require_POST
 def create_comment(request, book_pk, thread_pk):
-    pass
+    thread = get_object_or_404(Thread, pk=thread_pk)
+    form = CommentForm(request.POST)
+    print(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.thread = thread
+        comment.user = request.user
+        comment.save()
 
+        return JsonResponse({
+                "comment": {
+                    "id": comment.pk,
+                    "content": comment.content,
+                    "username": comment.user.username,
+                }
+            })
+    print(form.errors)
+    return JsonResponse({"error": "폼이 유효하지 않습니다."}, status=400)
+@login_required
+@require_POST
 def delete_comment(request, book_pk, comment_pk):
-    pass
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    if request.user == comment.user:
+        comment.delete()
+        return JsonResponse({"deleted": True})
+
+
