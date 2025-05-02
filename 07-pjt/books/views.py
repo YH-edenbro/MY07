@@ -19,11 +19,21 @@ from .utils import (
 
 # Index 페이지
 def index(request):
-    return render(request,'books/index.html')
+    book = Book.objects.all()
+    category = Category.objects.all()
+    context = {
+        "books": book,
+        'categories':category
+    }
+    return render(request,'books/index.html', context)
 
 # 장르별 필터링
 def filter_category(request):
-    pass
+    # book = Book.objects.filter()
+    context={
+        # 'books':book
+    }
+    return render(request, 'books/index.html', context)
 
 @require_safe
 def detail(request, book_pk):

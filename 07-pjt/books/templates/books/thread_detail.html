@@ -9,6 +9,17 @@
     />
   </div>
   {% endif %}
+  <script>
+    const getCSRFToken = () => {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        if (cookie.trim().startsWith('csrftoken=')) {
+          return cookie.trim().substring('csrftoken='.length);
+        }
+      }
+      return '';
+    };
+  </script>
 
   <div class="d-flex flex-row justify-content-between align-items-between">
     <h1 class="mb-3">{{ thread.title }}</h1>
@@ -47,9 +58,6 @@
 
   <div class="d-flex flex-row justify-content-start align-items-center gap-4">
     <!-- 여기에 좋아요 관련 기능을 구현하시오 -->
-
-    <!-- 좋아요 버튼 및 수 표시 -->
-    <!-- 좋아요 버튼 및 수 표시 -->
     <div
       id="like-section"
       data-liked="{% if user in thread.likes.all %}true{% else %}false{% endif %}"
@@ -62,37 +70,40 @@
       </button>
       <span id="like-count">{{ thread.likes.count }}</span>명이 좋아합니다
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const likeBtn = document.getElementById("like-btn");
         const likeCount = document.getElementById("like-count");
-
+    
         likeBtn.addEventListener("click", function (event) {
-          event.preventDefault(); // form 기본 동작 막기
-
-          fetch("{% url 'books:likes' book.pk thread.pk %}", {
-            method: "POST",
+          event.preventDefault();
+    
+          axios.post("{% url 'books:likes' book.pk thread.pk %}", {}, {
             headers: {
-              "X-CSRFToken": "{{ csrf_token }}",
-              Accept: "application/json",
-            },
+              "X-CSRFToken": getCSRFToken(),
+              "Accept": "application/json",
+            }
           })
-            .then((response) => response.json())
-            .then((data) => {
-              likeCount.textContent = data.like_count;
-              if (data.liked) {
-                likeBtn.classList.remove("btn-outline-warning");
-                likeBtn.classList.add("btn-secondary");
-              } else {
-                likeBtn.classList.remove("btn-secondary");
-                likeBtn.classList.add("btn-outline-warning");
-              }
-            })
-            .catch((error) => console.error("Error:", error));
+          .then((response) => {
+            const data = response.data;
+            likeCount.textContent = data.like_count;
+            if (data.liked) {
+              likeBtn.classList.remove("btn-outline-warning");
+              likeBtn.classList.add("btn-secondary");
+            } else {
+              likeBtn.classList.remove("btn-secondary");
+              likeBtn.classList.add("btn-outline-warning");
+            }
+          })
+          .catch((error) => {
+            console.error("Axios Error:", error);
+          });
         });
       });
     </script>
+    
 
     <hr />
 
