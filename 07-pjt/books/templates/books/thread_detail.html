@@ -109,53 +109,50 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
   const commentForm = document.querySelector('#comment-form')
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
 
-  commentForm.addEventListener('submit', function (event) {
+commentForm.addEventListener('submit', function (event) {
+  event.preventDefault()
 
-    const content = document.querySelector('#id_content').value;
+  const formData = new FormData(commentForm)
 
-    event.preventDefault()
-    axios({
-      url: "{% url 'books:create_comment' book.pk thread.pk %}",
-      method: 'post',
-      headers: {'X-CSRFToken': csrftoken},
-      data: { content: content },
-    }) 
-      .then((response) => {
-        const comment = response.data.comment;
-        const commentList = document.querySelector('#comment-list')
-
-        const noComments = document.querySelector('#no-comments');
-        if (noComments) noComments.remove();
-
-        const div = document.createElement('div');
-
-        div.id = `comment-${comment.id}`;
-        div.classList.add('d-flex', 'flex-row', 'align-items-baseline', 'gap-2');
-  
-        div.innerHTML = `
-          <p>${comment.content}</p>
-          <small><a href="/accounts/profile/${comment.username}/">(${comment.username})</a></small>
-          <button class="delete-comment-btn" data-comment-id="${comment.id}">삭제</button>
-        `;
-        commentList.appendChild(div);
-  
-        document.querySelector('#id_content').value = '';
-
-
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+  axios({
+    url: "{% url 'books:create_comment' book.pk thread.pk %}",
+    method: 'post',
+    headers: { 'X-CSRFToken': csrftoken },
+    data: formData,
   })
+    .then((response) => {
+      const comment = response.data.comment;
+      const commentList = document.querySelector('#comment-list')
+
+      const noComments = document.querySelector('#no-comments');
+      if (noComments) noComments.remove();
+
+      const div = document.createElement('div');
+      div.id = `comment-${comment.id}`;
+      div.classList.add('d-flex', 'flex-row', 'align-items-baseline', 'gap-2');
+
+      div.innerHTML = `
+        <p>${comment.content}</p>
+        <small><a href="/accounts/profile/${comment.username}/">(${comment.username})</a></small>
+        <button class="delete-comment-btn" data-comment-id="${comment.id}">삭제</button>
+      `;
+      commentList.appendChild(div);
+
+      document.querySelector('#id_content').value = ''
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+})
 
   document.querySelector('#comment-list').addEventListener('click', function (event) {
     if (event.target.classList.contains('delete-comment-btn')) {
       const commentId = event.target.dataset.commentId;
 
       axios({
-        url: `/books/{{ book.pk }}/threads/{{ thread.pk }}/comments/${commentId}/delete/`,
+        url: `{% url 'books:delete_comment' book.pk 0 %}`.replace('/0/', `/${commentId}/`),
         method: 'post',
         headers: { 'X-CSRFToken': csrftoken },
       })
@@ -168,6 +165,13 @@
     }
   });
 
+  const commentList = document.querySelector('#comment-list')
+  if (commentList.children.length === 0) {
+    const p = document.createElement('p')
+    p.id = 'no-comments'
+    p.textContent = '작성된 댓글이 없습니다.'
+    commentList.appendChild(p)
+  }
 </script>  
 
 {% endblock content %}

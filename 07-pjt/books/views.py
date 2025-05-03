@@ -145,6 +145,8 @@ def create_comment(request, book_pk, thread_pk):
             })
     print(form.errors)
     return JsonResponse({"error": "폼이 유효하지 않습니다."}, status=400)
+
+
 @login_required
 @require_POST
 def delete_comment(request, book_pk, comment_pk):
