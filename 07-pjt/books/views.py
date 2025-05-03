@@ -19,11 +19,35 @@ from .utils import (
 
 # Index 페이지
 def index(request):
-    return render(request,'books/index.html')
+    book = Book.objects.all()
+    category = Category.objects.all()
+    context = {
+        "books": book,
+        'categories':category
+    }
+    return render(request,'books/index.html', context)
 
 # 장르별 필터링
 def filter_category(request):
-    pass
+    category = request.GET.get('category', '')
+    
+    if category:
+        books = Book.objects.filter(category__name=category)
+    else:
+        books = Book.objects.all()
+
+    data = {
+        'books': [
+            {
+                'id': book.id,
+                'title': book.title,
+                'description': book.description[:180],
+                'cover': book.cover if book.cover else '',
+            }
+            for book in books
+        ]
+    }
+    return JsonResponse(data)
 
 @require_safe
 def detail(request, book_pk):

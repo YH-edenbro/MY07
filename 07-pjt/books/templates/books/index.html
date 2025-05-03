@@ -11,7 +11,7 @@
       </li>
       {% for category in categories %}
         <li class="list-inline-item">
-          <a href="{% url 'books:index' %}?category={{ category.name|urlencode }}" class="category-link" data-category="{{ category.name }}">
+          <a href="{% url 'books:filter_category' %}?category={{ category.name|urlencode }}" class="category-link" data-category="{{ category.name }}">
             {{ category.name }}
           </a>
         </li>
@@ -81,7 +81,7 @@
                 ${imgHtml}
                 <div class="card-body">
                   <h5 class="card-title">${book.title}</h5>
-                  <p class="card-text">${book.description|truncatechars:180}</p>
+                  <p class="card-text">${book.description}</p>
                   <h6 class="card-subtitle mb-2">
                     <a href="/books/${book.id}/" class="btn btn-success">Detail</a>
                   </h6>
