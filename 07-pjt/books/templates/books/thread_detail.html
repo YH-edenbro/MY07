@@ -132,24 +132,6 @@
       {% endfor %}
     </div>
 
-    <!-- 댓글 작성 폼 -->
-    <h4>댓글 작성</h4>
-    <form
-      id="comment-form"
-      method="POST"
-      action="{% url 'books:create_comment' book.pk thread.pk %}"
-    >
-      {% csrf_token %} {{ comment_form.content }}
-      <input type="submit" value="전송" />
-    </form>
-
-    <hr />
-
-    <a href="{% url 'books:detail' thread.book.pk %}" class="btn btn-secondary"
-      >BACK</a
-    >
-  </div>
-
   <!-- 댓글 작성 폼 -->
   <h4>댓글 작성</h4>
   <form id="comment-form">
